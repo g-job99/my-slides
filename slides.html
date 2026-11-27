@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>履歷不是自傳，它是一張「面試入場券」｜軟體工程師求職實戰</title>
+  <!-- 載入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 載入 Google Fonts：Inter 與 思源黑體 Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <!-- 載入 Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', '"Noto Sans TC"', 'sans-serif'],
+          },
+          colors: {
+            warm: {
+              bg: '#FAF8F5',       // 溫暖米白燕麥底色
+              card: '#FFFFFF',     // 純白卡片底
+              soft: '#F3EFEA',     // 淺暖沙色區塊
+              border: '#E6DFD5',   // 溫潤邊框色
+              ink: '#1E293B',      // 深岩灰主文字
+              muted: '#57534E',    // 暖灰次要文字
+              amber: '#D97706',    // 溫暖琥珀橘主強調色
+              amberLight: '#FEF3C7',
+              teal: '#0F766E',     // 專業沉穩青綠輔助色
+              tealLight: '#CCFBF1',
+            }
+          },
+          boxShadow: {
+            'warm': '0 10px 30px -5px rgba(120, 90, 60, 0.08), 0 4px 10px -2px rgba(120, 90, 60, 0.04)',
+            'warm-lg': '0 20px 40px -10px rgba(120, 90, 60, 0.12)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 自訂捲軸與過場動畫 */
+    body {
+      background-color: #FAF8F5;
+      color: #1E293B;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .slide-container {
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide-enter {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    .slide-active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* 細緻背景點狀紋理，增添教學講義質感 */
+    .bg-paper-dots {
+      background-image: radial-gradient(#D6CEC2 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* 隱藏捲軸但可捲動 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-warm-bg bg-paper-dots selection:bg-amber-200 selection:text-amber-900">
+
+  <!-- 頂部進度條 -->
+  <div class="fixed top-0 left-0 w-full h-1.5 bg-warm-soft z-50">
+    <div id="progress-bar" class="h-full bg-gradient-to-r from-amber-500 to-teal-600 transition-all duration-300" style="width: 3.8%;"></div>
+  </div>
+
+  <!-- 頂部導覽列 -->
+  <header class="w-full px-4 sm:px-8 pt-4 pb-2 flex items-center justify-between z-40">
+    <div class="flex items-center gap-2.5">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-amber-600 text-white font-bold text-sm shadow-sm">
+        <i data-lucide="compass" class="w-4 h-4"></i>
+      </span>
+      <div class="hidden sm:block">
+        <span class="text-xs font-bold tracking-wider uppercase text-amber-700 block">TibaMe 職涯實戰工作坊</span>
+        <span class="text-xs text-warm-muted">軟體工程師履歷 × 專案表達 × 面試準備</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <!-- 頁碼徽章 -->
+      <button id="btn-toc" onclick="toggleOverview()" title="開啟簡報總覽 (按 G 鍵)" class="px-3 py-1.5 rounded-xl bg-white/90 hover:bg-white border border-warm-border text-xs font-semibold text-warm-ink shadow-sm flex items-center gap-1.5 transition cursor-pointer">
+        <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-amber-600"></i>
+        <span id="page-indicator">1 / 26</span>
+      </button>
+
+      <!-- 全螢幕切換 -->
+      <button onclick="toggleFullscreen()" title="全螢幕檢視" class="p-2 rounded-xl bg-white/90 hover:bg-white border border-warm-border text-warm-muted hover:text-warm-ink shadow-sm transition cursor-pointer hidden sm:flex">
+        <i data-lucide="maximize-2" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- 主要簡報舞台區 -->
+  <main id="slide-stage" class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-8 py-3 flex items-center justify-center">
+    <div id="slide-content" class="slide-container slide-active w-full bg-warm-card rounded-3xl border border-warm-border shadow-warm p-6 sm:p-10 md:p-12 min-h-[72vh] flex flex-col justify-between relative overflow-hidden">
+      <!-- 動態內容將由 JavaScript 渲染至此 -->
+    </div>
+  </main>
+
+  <!-- 底部控制列 -->
+  <footer class="w-full px-4 sm:px-8 py-3 flex items-center justify-between max-w-6xl mx-auto z-40">
+    <div class="text-xs text-warm-muted hidden md:flex items-center gap-3">
+      <span class="inline-flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-white border border-warm-border rounded text-[11px] font-mono">←</kbd> <kbd class="px-1.5 py-0.5 bg-white border border-warm-border rounded text-[11px] font-mono">→</kbd> 切換頁面</span>
+      <span class="inline-flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-white border border-warm-border rounded text-[11px] font-mono">G</kbd> 目錄總覽</span>
+    </div>
+
+    <div class="flex items-center gap-3 mx-auto md:mx-0">
+      <button id="btn-prev" onclick="prevSlide()" class="px-4 py-2.5 rounded-2xl bg-white hover:bg-warm-soft disabled:opacity-40 disabled:pointer-events-none border border-warm-border text-warm-ink font-medium text-sm shadow-sm flex items-center gap-1.5 transition cursor-pointer">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>上一頁</span>
+      </button>
+
+      <button id="btn-next" onclick="nextSlide()" class="px-5 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 disabled:opacity-40 disabled:pointer-events-none text-white font-semibold text-sm shadow-sm flex items-center gap-1.5 transition cursor-pointer">
+        <span>下一頁</span>
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </footer>
+
+  <!-- 目錄總覽 Modal -->
+  <div id="overview-modal" class="fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 sm:p-8">
+    <div class="bg-warm-bg border border-warm-border rounded-3xl shadow-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden">
+      <div class="px-6 py-4 bg-white border-b border-warm-border flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="book-open" class="w-5 h-5 text-amber-600"></i>
+          <h2 class="font-bold text-lg text-warm-ink">簡報章節總覽（點擊快速跳轉）</h2>
+        </div>
+        <button onclick="toggleOverview()" class="p-2 rounded-xl hover:bg-warm-soft text-warm-muted hover:text-warm-ink transition cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="overview-grid" class="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <!-- 目錄卡片由 JS 動態生成 -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 完整 26 頁簡報資料結構（忠實保留原簡報每一頁的重點與教學邏輯）
+    const slides = [
+      // Slide 1: Cover
+      {
+        tag: "COVER",
+        title: "履歷不是自傳。它是一張「面試入場券」。",
+        render: () => `
+          <div class="flex-1 flex flex-col justify-center">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/80 text-amber-800 text-xs sm:text-sm font-bold w-fit mb-6">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>軟體工程師求職實戰指南</span>
+            </div>
+            <h1 class="text-3xl sm:text-5xl md:text-[52px] font-black text-warm-ink leading-[1.2] tracking-tight mb-6">
+              履歷不是自傳。<br/>
+              它是一張<span class="text-amber-600 underline decoration-amber-300 decoration-4 underline-offset-8">「面試入場券」</span>。
+            </h1>
+            <p class="text-lg sm:text-xl font-semibold text-teal-800 mb-8">
+              軟體工程師履歷 × 專案表達 × 面試準備
+            </p>
+            <div class="flex flex-wrap gap-2 mb-10">
+              ${['AI', '前端開發', 'Java 後端', '資料工程', '資安網工', 'AWS / Cloud'].map(role => `
+                <span class="px-3.5 py-1.5 rounded-xl bg-warm-soft border border-warm-border text-warm-ink text-xs sm:text-sm font-semibold">${role}</span>
+              `).join('')}
+            </div>
+          </div>
+          <div class="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-4 sm:p-5 flex items-start sm:items-center gap-3.5">
+            <div class="p-2.5 rounded-xl bg-amber-600 text-white shrink-0">
+              <i data-lucide="target" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-700 block">今天的目標</span>
+              <p class="text-sm sm:text-base font-bold text-warm-ink">讓企業在短時間內看懂：「你會什麼、做過什麼、為什麼值得聊」</p>
+            </div>
+          </div>
+        `
+      },
+
+      // Slide 2: TODAY
+      {
+        tag: "TODAY",
+        title: "今天不教你把履歷寫滿，教你把重點寫對",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">TODAY · 課程路線圖</span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-warm-ink leading-snug">今天不教你把履歷寫滿，教你把重點寫對</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-6">
+            ${[
+              { num: '01', title: '先看職缺', desc: '知道企業在找什麼', icon: 'search', color: 'amber' },
+              { num: '02', title: '重寫履歷', desc: '把經歷翻譯成能力', icon: 'file-edit', color: 'teal' },
+              { num: '03', title: '專案說人話', desc: '讓技術與成果被看懂', icon: 'code-2', color: 'amber' },
+              { num: '04', title: '準備面試', desc: '把履歷變成可回答的故事', icon: 'message-square', color: 'teal' }
+            ].map(item => `
+              <div class="bg-warm-soft/70 hover:bg-warm-soft border border-warm-border rounded-2xl p-5 flex flex-col justify-between transition">
+                <div>
+                  <div class="flex items-center justify-between mb-4">
+                    <span class="text-2xl font-black text-${item.color}-600">${item.num}</span>
+                    <div class="p-2 rounded-xl bg-white text-${item.color}-700 shadow-sm">
+                      <i data-lucide="${item.icon}" class="w-5 h-5"></i>
+                    </div>
+                  </div>
+                  <h3 class="text-xl font-bold text-warm-ink mb-2">${item.title}</h3>
+                  <p class="text-sm text-warm-muted leading-relaxed">${item.desc}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="text-right text-xs text-warm-muted font-medium">循序漸進：從看懂市場需求，到自信走進面試間</div>
+        `
+      },
+
+      // Slide 3: MINDSET
+      {
+        tag: "MINDSET",
+        title: "履歷真正的用途：幫陌生人快速判斷「要不要找你聊」",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">MINDSET · 核心心法</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink leading-snug">履歷真正的用途：幫陌生人快速判斷「要不要找你聊」</h2>
+            <p class="text-sm sm:text-base text-warm-muted mt-2">履歷是與未來主管對話的工具，核心在於尋找以下三者的交集：</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6 items-center">
+            <div class="bg-white border-2 border-amber-200 rounded-2xl p-6 text-center shadow-sm">
+              <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="briefcase" class="w-6 h-6"></i>
+              </div>
+              <h3 class="text-lg font-bold text-warm-ink">職務需求</h3>
+              <p class="text-xs text-warm-muted mt-1">企業團隊目前急需解決的問題</p>
+            </div>
+            <div class="bg-white border-2 border-teal-200 rounded-2xl p-6 text-center shadow-sm">
+              <div class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="cpu" class="w-6 h-6"></i>
+              </div>
+              <h3 class="text-lg font-bold text-warm-ink">技術能力</h3>
+              <p class="text-xs text-warm-muted mt-1">你掌握的開發工具與工程思維</p>
+            </div>
+            <div class="bg-white border-2 border-amber-200 rounded-2xl p-6 text-center shadow-sm">
+              <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="award" class="w-6 h-6"></i>
+              </div>
+              <h3 class="text-lg font-bold text-warm-ink">你的證據</h3>
+              <p class="text-xs text-warm-muted mt-1">做過的專案、系統、數據與成果</p>
+            </div>
+          </div>
+          <div class="bg-teal-900 text-white rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <span class="px-3 py-1 rounded-lg bg-amber-500 text-stone-950 font-black text-xs shrink-0">面試機會</span>
+              <p class="text-sm sm:text-base font-medium">不要問「我要放什麼？」先問：<strong class="text-amber-300">「這個職缺需要我證明什麼？」</strong></p>
+            </div>
+            <span class="text-xs text-teal-200 shrink-0 font-semibold">履歷不是資料倉庫，是篩選器。</span>
+          </div>
+        `
+      },
+
+      // Slide 4: BEFORE WRITING
+      {
+        tag: "BEFORE WRITING",
+        title: "寫履歷前，先把 JD 拆成 3 欄",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">BEFORE WRITING · 職缺拆解</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">寫履歷前，先把 JD（職缺描述）拆成 3 欄</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-5">
+            <div class="bg-warm-soft/60 border border-warm-border rounded-2xl p-5">
+              <div class="flex items-center gap-2.5 mb-3">
+                <span class="w-7 h-7 rounded-lg bg-amber-600 text-white font-bold text-sm flex items-center justify-center">1</span>
+                <h3 class="font-bold text-lg text-warm-ink">必備能力</h3>
+              </div>
+              <p class="text-xs text-warm-muted mb-4">職缺明確寫出來的核心技術門檻</p>
+              <ul class="space-y-2 text-sm font-medium text-warm-ink">
+                <li class="bg-white px-3 py-2 rounded-xl border border-warm-border">Java / Spring Boot</li>
+                <li class="bg-white px-3 py-2 rounded-xl border border-warm-border">SQL / Git</li>
+                <li class="bg-white px-3 py-2 rounded-xl border border-warm-border">Linux / AWS</li>
+              </ul>
+            </div>
+
+            <div class="bg-warm-soft/60 border border-warm-border rounded-2xl p-5">
+              <div class="flex items-center gap-2.5 mb-3">
+                <span class="w-7 h-7 rounded-lg bg-teal-700 text-white font-bold text-sm flex items-center justify-center">2</span>
+                <h3 class="font-bold text-lg text-warm-ink">工作任務</h3>
+              </div>
+              <p class="text-xs text-warm-muted mb-4">進公司後每天真正要負責做的事</p>
+              <ul class="space-y-2 text-sm font-medium text-warm-ink">
+                <li class="bg-white px-3 py-2 rounded-xl border border-warm-border">API 設計與開發</li>
+                <li class="bg-white px-3 py-2 rounded-xl border border-warm-border">資料 Pipeline 建置</li>
+                <li class="bg-white px-3 py-2 rounded-xl border border-warm-border">維運監控 / 弱點修補</li>
+              </ul>
+            </div>
+
+            <div class="bg-warm-soft/60 border border-warm-border rounded-2xl p-5">
+              <div class="flex items-center gap-2.5 mb-3">
+                <span class="w-7 h-7 rounded-lg bg-amber-600 text-white font-bold text-sm flex items-center justify-center">3</span>
+                <h3 class="font-bold text-lg text-warm-ink">加分訊號</h3>
+              </div>
+              <p class="text-xs text-warm-muted mb-4">能與其他求職者拉開差距的證據</p>
+              <ul class="space-y-2 text-sm font-medium text-warm-ink">
+                <li class="bg-white px-3 py-2 rounded-xl border border-warm-border">完整專題規模</li>
+                <li class="bg-white px-3 py-2 rounded-xl border border-warm-border">雲端 / 相關證照</li>
+                <li class="bg-white px-3 py-2 rounded-xl border border-warm-border">實際部署經驗 / 跨組協作</li>
+              </ul>
+            </div>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3 text-sm sm:text-base font-bold text-amber-950">
+            <i data-lucide="clock" class="w-5 h-5 text-amber-600 shrink-0"></i>
+            <span>投遞前 10 分鐘黃金動作：圈出 JD 關鍵字 ➔ 找出你的證據 ➔ 調整排序與用字</span>
+          </div>
+        `
+      },
+
+      // Slide 5: STRUCTURE
+      {
+        tag: "STRUCTURE",
+        title: "工程師履歷，建議用這個閱讀順序",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">STRUCTURE · 版面架構</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">工程師履歷，建議用這個閱讀順序</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 my-5">
+            ${[
+              { step: '1', title: '姓名 ＋ 目標職稱', desc: '讓人一眼知道你要應徵什麼職位', highlight: false },
+              { step: '2', title: '3–4 行摘要 Summary', desc: '定位、核心技術、最強證據的 15 秒電梯簡報', highlight: false },
+              { step: '3', title: '技能 Skills', desc: '依職缺分組排列，不要變成工具大雜燴', highlight: false },
+              { step: '4', title: '專案 Projects', desc: '轉職者與新鮮人的主戰場，篇幅應最完整', highlight: true },
+              { step: '5', title: '經歷 Experience', desc: '把過去非相關經歷翻譯成可轉移能力', highlight: false },
+              { step: '6', title: '教育 / 培訓 / 證照', desc: '保留與工程職務相關的訓練與認證資訊', highlight: false }
+            ].map(item => `
+              <div class="${item.highlight ? 'bg-amber-50 border-2 border-amber-400' : 'bg-warm-soft/60 border border-warm-border'} rounded-2xl p-4 flex items-start gap-3.5">
+                <span class="w-8 h-8 rounded-xl ${item.highlight ? 'bg-amber-600 text-white' : 'bg-white text-warm-ink border border-warm-border'} font-black text-sm flex items-center justify-center shrink-0 mt-0.5">${item.step}</span>
+                <div>
+                  <h3 class="font-bold text-base text-warm-ink flex items-center gap-2">
+                    ${item.title}
+                    ${item.highlight ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-600 text-white">主戰場</span>' : ''}
+                  </h3>
+                  <p class="text-xs sm:text-sm text-warm-muted mt-1 leading-relaxed">${item.desc}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="bg-warm-soft border border-warm-border rounded-2xl p-4 text-xs sm:text-sm text-warm-muted flex items-center gap-2.5">
+            <i data-lucide="info" class="w-4 h-4 text-teal-700 shrink-0"></i>
+            <span>提醒：大頭照、長篇家庭背景自傳不是工程職缺的核心競爭力。<strong>先把技術證據與專案寫清楚！</strong></span>
+          </div>
+        `
+      },
+
+      // Slide 6: SUMMARY
+      {
+        tag: "SUMMARY",
+        title: "履歷摘要不是「個性介紹」，是 15 秒定位",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">SUMMARY · 個人摘要</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">履歷摘要不是「個性介紹」，是 15 秒定位</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 my-5">
+            <!-- 常見 NG 寫法 -->
+            <div class="bg-rose-50/70 border border-rose-200 rounded-2xl p-5 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2 text-rose-700 font-bold text-sm mb-3">
+                  <i data-lucide="x-circle" class="w-5 h-5"></i>
+                  <span>常見寫法（任何人都能套用的空話）</span>
+                </div>
+                <blockquote class="bg-white/80 p-4 rounded-xl border border-rose-100 text-sm text-stone-600 italic leading-relaxed">
+                  「個性積極、認真負責、喜歡學習，對程式設計有熱忱，希望能進入貴公司學習成長。」
+                </blockquote>
+              </div>
+              <div class="mt-4 pt-3 border-t border-rose-200/60 text-xs text-rose-800 font-medium">
+                <strong>問題點：</strong>沒有技術關鍵字、沒有實作證據、沒有明確目標職務。
+              </div>
+            </div>
+
+            <!-- 推薦工程師版 -->
+            <div class="bg-teal-50/70 border-2 border-teal-500 rounded-2xl p-5 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2 text-teal-800 font-bold text-sm mb-3">
+                  <i data-lucide="check-circle-2" class="w-5 h-5 text-teal-600"></i>
+                  <span>工程師版（具體、精準、有證據）</span>
+                </div>
+                <blockquote class="bg-white p-4 rounded-xl border border-teal-200 text-sm text-warm-ink font-medium leading-relaxed shadow-sm">
+                  「完成 <span class="text-teal-700 font-bold">300+ 小時 Java 後端培訓</span>，熟悉 <span class="text-teal-700 font-bold">Spring Boot、RESTful API、MySQL 與 Git</span>。專題負責會員與訂單模組，完成 API 設計、資料庫串接與雲端部署，目標應徵 <span class="text-amber-700 font-bold">Junior Backend Engineer</span>。」
+                </blockquote>
+              </div>
+              <div class="mt-4 pt-3 border-t border-teal-200 text-xs text-teal-900 font-bold">
+                黃金公式：你是誰 ＋ 核心技術 ＋ 最強證據 ＋ 目標職務
+              </div>
+            </div>
+          </div>
+          <div class="text-xs text-warm-muted text-center">讓招募人員在 15 秒內確認：你的技能樹與這個職缺完全吻合！</div>
+        `
+      },
+
+      // Slide 7: SKILLS
+      {
+        tag: "SKILLS",
+        title: "技能欄不是關鍵字垃圾桶",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">SKILLS · 專業技能</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">技能欄不是關鍵字垃圾桶，要結構化分類</h2>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-4 items-center">
+            <div class="lg:col-span-7 bg-warm-soft/70 border border-warm-border rounded-2xl p-5 space-y-2.5">
+              ${[
+                { cat: 'Programming', items: 'Java, Python, JavaScript' },
+                { cat: 'Framework / Library', items: 'Spring Boot, React, FastAPI' },
+                { cat: 'Database / Data', items: 'MySQL, MongoDB, BigQuery' },
+                { cat: 'Cloud / DevOps', items: 'AWS, GCP, Docker, CI/CD' },
+                { cat: 'Tools / OS', items: 'Git, Linux, Postman' }
+              ].map(row => `
+                <div class="bg-white rounded-xl px-4 py-2.5 border border-warm-border flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <span class="text-xs font-extrabold uppercase tracking-wider text-teal-800">${row.cat}</span>
+                  <span class="text-sm font-semibold text-warm-ink">${row.items}</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="lg:col-span-5 space-y-3">
+              <h3 class="font-bold text-base text-warm-ink mb-2">撰寫技能欄的三個鐵則：</h3>
+              ${[
+                { num: '①', title: '會用再寫', desc: '面試官看到什麼就會問什麼，不要為了過系統篩選塞滿只「聽過」的工具。' },
+                { num: '②', title: '依職缺排序', desc: '把 JD 裡最看重的技術類別放在第一行、最前面。' },
+                { num: '③', title: '能被專案證明', desc: '技能欄寫的每一項核心技術，最好都能在下方專案中找到實際應用。' }
+              ].map(rule => `
+                <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4">
+                  <div class="font-bold text-amber-900 text-sm mb-1">${rule.num} ${rule.title}</div>
+                  <p class="text-xs text-warm-muted leading-relaxed">${rule.desc}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `
+      },
+
+      // Slide 8: PROJECTS
+      {
+        tag: "PROJECTS",
+        title: "轉職工程師的專案，不是作業清單，是能力證據",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">PROJECTS · 專案呈現</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">轉職工程師的專案，不是作業清單，是能力證據</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 my-6">
+            ${[
+              { step: '1', label: '問題', q: '為什麼要做？', desc: '解決什麼痛點或業務需求' },
+              { step: '2', label: '角色', q: '你負責什麼？', desc: '團隊分工中的具體模組' },
+              { step: '3', label: '技術', q: '為什麼這樣選？', desc: '架構與工具的選型理由' },
+              { step: '4', label: '行動', q: '你真的做了什麼？', desc: '實作細節、踩坑與除錯' },
+              { step: '5', label: '結果', q: '做完改善什麼？', desc: '交付成果、數據或穩定度' }
+            ].map(p => `
+              <div class="bg-warm-soft/70 border border-warm-border rounded-2xl p-4 flex flex-col justify-between">
+                <div>
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-600 text-white font-bold text-xs mb-3">${p.step}</span>
+                  <h3 class="text-lg font-extrabold text-warm-ink">${p.label}</h3>
+                  <p class="text-xs font-bold text-teal-700 mt-1">${p.q}</p>
+                </div>
+                <p class="text-xs text-warm-muted mt-3 pt-2 border-t border-warm-border">${p.desc}</p>
+              </div>
+            `).join('')}
+          </div>
+          <div class="bg-teal-900 text-white rounded-2xl p-5">
+            <p class="text-sm sm:text-base font-medium leading-relaxed">
+              💡 專案描述至少要讓面試官能追問：<span class="text-amber-300 font-bold">「架構怎麼設計？遇到什麼問題？你怎麼解？」</span><br/>
+              <span class="text-xs sm:text-sm text-teal-200">記住：這些追問不是危險，而是你展現工程思維的最佳入口！</span>
+            </p>
+          </div>
+        `
+      },
+
+      // Slide 9: STAR
+      {
+        tag: "STAR",
+        title: "把「我做過」改成「我解決過」",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">STAR 法則 · 成果結構</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">把「我做過」改成「我解決過」</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-6">
+            ${[
+              { letter: 'S', word: 'Situation 情境', desc: '當時遇到什麼系統限制、效能瓶頸或業務問題？', bg: 'bg-warm-soft' },
+              { letter: 'T', word: 'Task 任務', desc: '你在這個情境下需要達成什麼技術目標？', bg: 'bg-warm-soft' },
+              { letter: 'A', word: 'Action 行動', desc: '你採取了哪些具體的技術決策、重構或開發步驟？', bg: 'bg-amber-50 border-amber-300' },
+              { letter: 'R', word: 'Result 結果', desc: '最終結果如何？有什麼可驗證的數據或證據？', bg: 'bg-teal-50 border-teal-300' }
+            ].map(item => `
+              <div class="${item.bg} border border-warm-border rounded-2xl p-5 flex flex-col">
+                <span class="text-4xl font-black text-amber-600 mb-2">${item.letter}</span>
+                <h3 class="font-bold text-base text-warm-ink mb-2">${item.word}</h3>
+                <p class="text-xs sm:text-sm text-warm-muted leading-relaxed">${item.desc}</p>
+              </div>
+            `).join('')}
+          </div>
+          <div class="bg-amber-100/80 border border-amber-300 rounded-2xl p-4 text-center">
+            <p class="text-sm sm:text-base font-bold text-amber-950">
+              ✨ 實戰技巧：書面履歷版面有限，通常壓縮成 <span class="px-2 py-0.5 bg-white rounded-lg text-amber-700">A（行動）+ R（結果）</span>；面試口頭回答時再把 <span class="px-2 py-0.5 bg-white rounded-lg text-teal-800">S、T</span> 完整補回來！
+            </p>
+          </div>
+        `
+      },
+
+      // Slide 10: REWRITE
+      {
+        tag: "REWRITE",
+        title: "一句話改寫公式：動作 ＋ 技術 ＋ 對象 ＋ 結果",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">REWRITE · 履歷句型升級</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">一句話改寫公式：<span class="text-amber-600">動作 ＋ 技術 ＋ 對象 ＋ 結果</span></h2>
+          </div>
+          <div class="space-y-4 my-5">
+            <div class="bg-stone-100 border border-stone-200 rounded-2xl p-5">
+              <span class="inline-block px-2.5 py-0.5 rounded-md bg-stone-500 text-white text-xs font-bold mb-2">Before（流水帳寫法）</span>
+              <p class="text-base text-stone-600 font-medium">「負責後端 API 開發」</p>
+            </div>
+
+            <div class="flex justify-center">
+              <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center">
+                <i data-lucide="arrow-down" class="w-5 h-5"></i>
+              </div>
+            </div>
+
+            <div class="bg-teal-50/80 border-2 border-teal-500 rounded-2xl p-5 shadow-sm">
+              <span class="inline-block px-2.5 py-0.5 rounded-md bg-teal-700 text-white text-xs font-bold mb-2">After（工程師具體表達）</span>
+              <p class="text-base sm:text-lg text-warm-ink font-bold leading-relaxed">
+                「使用 <span class="text-teal-700 underline decoration-2">Spring Boot</span> 設計並實作<span class="text-amber-700">會員與訂單 RESTful API</span>，串接 <span class="text-teal-700 underline decoration-2">MySQL 與 JWT 驗證</span>，完成 <span class="bg-amber-200/70 px-1.5 rounded">12 支核心 API 並通過團隊整合測試</span>。」
+              </p>
+            </div>
+          </div>
+          <div class="bg-warm-soft border border-warm-border rounded-2xl p-4 text-xs sm:text-sm text-warm-muted">
+            💡 <strong>沒有漂亮的商業營收數字也沒關係：</strong>你可以用「系統規模、API 數量、資料範圍、回應效能、穩定性、完成度、測試覆蓋結果」來具體化你的成果！
+          </div>
+        `
+      },
+
+      // Slide 11: ROLE PLAYBOOK
+      {
+        tag: "ROLE PLAYBOOK",
+        title: "不同工程職缺，履歷要凸顯的證據不一樣",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">ROLE PLAYBOOK · 六大領域攻略</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">不同工程職缺，履歷要凸顯的證據不一樣</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 my-4">
+            ${[
+              { role: 'AI / ML 工程師', focus: '資料處理、模型／LLM 應用、評估方式、部署', tags: 'Python｜RAG｜API｜模型評估' },
+              { role: '前端工程師', focus: '互動體驗、狀態管理、效能優化、RWD、API 串接', tags: 'React｜Vue｜TypeScript｜Web API' },
+              { role: 'Java 後端工程師', focus: 'API 設計、商業邏輯、DB 規劃、測試、部署', tags: 'Spring Boot｜SQL｜REST｜JUnit' },
+              { role: '資料工程師', focus: '資料流設計、ETL、排程自動化、資料品質、雲端', tags: 'Python｜SQL｜Airflow｜BigQuery' },
+              { role: '資安 / 網工', focus: '網路基礎、日誌監控、弱點掃描、事件處理、文件', tags: 'Linux｜TCP/IP｜Firewall｜SIEM' },
+              { role: 'AWS / Cloud', focus: '雲端架構、IAM 權限、自動化部署、監控與成本', tags: 'EC2｜VPC｜IAM｜CloudWatch' }
+            ].map(item => `
+              <div class="bg-warm-soft/70 border border-warm-border rounded-2xl p-4 flex flex-col justify-between">
+                <div>
+                  <h3 class="font-extrabold text-base text-teal-900 mb-1.5">${item.role}</h3>
+                  <p class="text-xs text-warm-muted leading-relaxed mb-3">${item.focus}</p>
+                </div>
+                <div class="text-[11px] font-bold text-amber-800 bg-amber-100/80 px-2.5 py-1.5 rounded-lg">
+                  ${item.tags}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `
+      },
+
+      // Slide 12: CAREER CHANGE
+      {
+        tag: "CAREER CHANGE",
+        title: "非本科、跨領域，不需要把以前的人生刪掉",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">CAREER CHANGE · 轉職優勢翻譯</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">非本科、跨領域，不需要把以前的人生刪掉</h2>
+            <p class="text-sm text-warm-muted mt-1">真正要做的是把過去經驗<strong>「翻譯」</strong>成工程團隊看重的軟實力：</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-5">
+            ${[
+              { from: '門市 / 服務業', to: '使用者需求理解、高壓客訴處理、服務流程意識' },
+              { from: '行政 / 營運人員', to: '龐大資料整理、跨部門溝通協作、SOP 文件撰寫能力' },
+              { from: '業務 / 專案 PM', to: '客戶需求訪談、對齊期待、任務優先順序與交付掌控' },
+              { from: '製造 / 硬體工程', to: '異常問題排查（Debug 思維）、標準作業與系統性思考' }
+            ].map(c => `
+              <div class="bg-warm-soft/70 border border-warm-border rounded-2xl p-4 flex flex-col justify-center">
+                <span class="text-xs font-bold text-amber-700 uppercase mb-1">${c.from}</span>
+                <div class="flex items-center gap-2 text-sm font-bold text-warm-ink">
+                  <i data-lucide="arrow-right-circle" class="w-4 h-4 text-teal-600 shrink-0"></i>
+                  <span>${c.to}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs sm:text-sm text-amber-950 font-medium">
+            ⚠️ <strong>版面比例原則：</strong>避免把舊工作寫成 10 行職務說明，卻只給技術專案 2 行。<strong>轉職履歷的版面，要把「未來（技術專案）」放得比「過去」大！</strong>
+          </div>
+        `
+      },
+
+      // Slide 13: PORTFOLIO
+      {
+        tag: "PORTFOLIO",
+        title: "GitHub / 作品集，面試官點進去前先做這 5 件事",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">PORTFOLIO · 作品集門面</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">GitHub / 作品集，面試官點進去前先做這 5 件事</h2>
+          </div>
+          <div class="space-y-2.5 my-4">
+            ${[
+              { num: '01', text: 'README 第一段先說清楚「這個專案解決什麼問題」' },
+              { num: '02', text: '放上系統架構圖、Live Demo 連結或操作畫面截圖，不要只有冷冰冰的程式碼' },
+              { num: '03', text: '明確寫出你的個人負責範圍、資料庫設計與技術選擇理由' },
+              { num: '04', text: 'Repository 名稱、Commit 紀錄與資料夾結構保持乾淨可讀' },
+              { num: '05', text: '敏感資訊、API Key、資料庫密碼絕對不要上傳（記得設 .gitignore）', danger: true }
+            ].map(item => `
+              <div class="${item.danger ? 'bg-rose-50 border-rose-200' : 'bg-warm-soft/70 border-warm-border'} border rounded-2xl px-4 py-3 flex items-center gap-3.5">
+                <span class="font-black text-base ${item.danger ? 'text-rose-600' : 'text-amber-600'}">${item.num}</span>
+                <span class="text-sm sm:text-base font-bold ${item.danger ? 'text-rose-900' : 'text-warm-ink'}">${item.text}</span>
+              </div>
+            `).join('')}
+          </div>
+          <p class="text-xs sm:text-sm text-teal-800 font-bold text-center">作品集不是「證明我有交作業」，而是讓技術主管快速理解你的工程思考。</p>
+        `
+      },
+
+      // Slide 14: AI & RESUME
+      {
+        tag: "AI & RESUME",
+        title: "可以用 AI 幫忙，但不要讓履歷變成 AI 代寫腔",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">AI & RESUME · 工具使用邊界</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">AI 最適合當「專業編輯」，不適合當你的「經歷發明家」</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 my-5">
+            <div class="bg-rose-50/70 border border-rose-200 rounded-2xl p-5">
+              <h3 class="font-bold text-rose-800 text-base mb-3 flex items-center gap-2">
+                <i data-lucide="x-circle" class="w-5 h-5"></i> 這樣用 AI 會扣分
+              </h3>
+              <ul class="space-y-2.5 text-sm text-rose-950">
+                <li class="flex items-start gap-2"><span class="font-bold text-rose-600">×</span> 充斥「致力於、賦能、卓越、深耕」等空泛形容詞</li>
+                <li class="flex items-start gap-2"><span class="font-bold text-rose-600">×</span> 每段句型一模一樣，一看就是同個模板生成</li>
+                <li class="flex items-start gap-2"><span class="font-bold text-rose-600">×</span> 工具列得很滿，面試一問細節卻完全說不清楚</li>
+                <li class="flex items-start gap-2"><span class="font-bold text-rose-600">×</span> 讓 AI 幫你虛構不存在的數據、技術或專案成果</li>
+              </ul>
+            </div>
+
+            <div class="bg-teal-50/70 border border-teal-300 rounded-2xl p-5">
+              <h3 class="font-bold text-teal-900 text-base mb-3 flex items-center gap-2">
+                <i data-lucide="check-circle-2" class="w-5 h-5 text-teal-600"></i> 聰明工程師這樣用 AI
+              </h3>
+              <ul class="space-y-2.5 text-sm text-teal-950">
+                <li class="flex items-start gap-2"><span class="font-bold text-teal-600">✓</span> 貼入職缺描述，請 AI 幫你拆解 JD 核心關鍵字</li>
+                <li class="flex items-start gap-2"><span class="font-bold text-teal-600">✓</span> 把你寫的冗長技術細節，精煉壓縮成 1–2 行重點</li>
+                <li class="flex items-start gap-2"><span class="font-bold text-teal-600">✓</span> 檢查中英文技術名詞拼寫、錯字與格式一致性</li>
+                <li class="flex items-start gap-2"><span class="font-bold text-teal-600">✓</span> 扮演面試官針對你的履歷模擬追問，再由你自己回答</li>
+              </ul>
+            </div>
+          </div>
+        `
+      },
+
+      // Slide 15: CHECKLIST
+      {
+        tag: "CHECKLIST",
+        title: "送出前 60 秒履歷健檢清單",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">CHECKLIST · 投遞前最後確認</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">送出前 60 秒履歷健檢清單（可點擊勾選確認）</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-5">
+            ${[
+              '目標職稱清楚明確，一眼看懂你要應徵什麼',
+              '聯絡方式（手機、Email、GitHub）正確無誤',
+              '第一頁上半部就能看得到你最強的代表專案',
+              '技能欄關鍵字與目標 JD 有高度對應',
+              '每個專案都清楚寫出「你個人做了什麼」',
+              '沒有只列出一堆工具名稱、卻不寫實際用途',
+              '所有學經歷與專案的日期格式完全一致',
+              '作品集 / Demo 連結皆可正常點擊、權限已公開',
+              '檔名專業規範：姓名_應徵職缺_CV.pdf',
+              '全篇零錯字、零不實誇大與零虛構經歷'
+            ].map((item, idx) => `
+              <label class="bg-warm-soft/70 hover:bg-warm-soft border border-warm-border rounded-xl px-4 py-2.5 flex items-center gap-3 cursor-pointer select-none transition">
+                <input type="checkbox" class="w-4 h-4 accent-amber-600 rounded cursor-pointer" />
+                <span class="text-xs sm:text-sm font-semibold text-warm-ink">${item}</span>
+              </label>
+            `).join('')}
+          </div>
+        `
+      },
+
+      // Slide 16: APPLICATION
+      {
+        tag: "APPLICATION",
+        title: "同一份履歷海投 50 間，通常比不上針對 10 間調整",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">APPLICATION · 精準投遞策略</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">同一份履歷海投 50 間，比不上針對 10 間精準調整</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-6">
+            ${[
+              { badge: 'JD', title: '圈出關鍵需求', desc: '每間目標公司圈出 5–8 個最核心的技術與任務需求' },
+              { badge: 'CV', title: '證據往前挪', desc: '把最符合該公司技術棧的專案與技能調整到最前面' },
+              { badge: 'MAIL', title: '3–5 行推薦信', desc: '求職信簡短有力點出你的技術亮點與作品連結，補強第一印象' },
+              { badge: 'TRACK', title: '建立投遞追蹤表', desc: '系統化記錄投遞版本、企業回覆、面試進度與面談結果' }
+            ].map(step => `
+              <div class="bg-warm-soft/70 border border-warm-border rounded-2xl p-5">
+                <span class="inline-block px-3 py-1 rounded-lg bg-amber-600 text-white font-black text-xs tracking-wider mb-3">${step.badge}</span>
+                <h3 class="font-bold text-lg text-warm-ink mb-2">${step.title}</h3>
+                <p class="text-xs sm:text-sm text-warm-muted leading-relaxed">${step.desc}</p>
+              </div>
+            `).join('')}
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center text-sm font-bold text-amber-950">
+            主動客製化投遞的目的，是大幅增加「被技術主管看見」的機率，而不是被動等待平台演算法配對。
+          </div>
+        `
+      },
+
+      // Slide 17: INTERVIEW
+      {
+        tag: "INTERVIEW",
+        title: "進面試前，你的履歷每一行都可能變成一道題目",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">INTERVIEW · 履歷防禦與延伸</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">進面試前，你的履歷每一行都可能變成一道題目</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 my-5">
+            ${[
+              '「這個專案你負責哪一塊？跟組員怎麼分工？」',
+              '「為什麼選用這個框架／資料庫，而不是另一個？」',
+              '「開發過程中遇過最難解的 Bug 是什麼？怎麼排查？」',
+              '「如果這個系統讓你重做一次，你會改進哪裡？」',
+              '「你履歷寫熟悉 AWS，實際用過哪些服務與設定？」',
+              '「團隊開發意見不同時，你通常怎麼溝通處理？」'
+            ].map(q => `
+              <div class="bg-white border border-warm-border rounded-2xl p-4 shadow-sm flex items-start gap-2.5">
+                <i data-lucide="help-circle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+                <p class="text-sm font-bold text-warm-ink leading-snug">${q}</p>
+              </div>
+            `).join('')}
+          </div>
+          <div class="bg-teal-900 text-white rounded-2xl p-4 text-sm sm:text-base font-medium text-center">
+            🎯 黃金準備原則：履歷上出現的<strong>每一個技術名詞</strong>，你都要能講出「使用情境、你的角色、遇到的問題、最終結果」。
+          </div>
+        `
+      },
+
+      // Slide 18: SELF INTRO
+      {
+        tag: "SELF INTRO",
+        title: "60 秒自我介紹：不要從出生講起",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">SELF INTRO · 開場黃金一分鐘</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">60 秒自我介紹：結構化節奏，不要從出生講起</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3.5 my-6">
+            ${[
+              { sec: '10 秒', title: '我是誰', desc: '目前的專業定位 ＋ 應徵的目標職務' },
+              { sec: '20 秒', title: '我會什麼', desc: '點出與該職缺最匹配的 2–3 個核心技能' },
+              { sec: '20 秒', title: '我做過什麼', desc: '最相關的代表專案 ＋ 你的具體貢獻與成果' },
+              { sec: '10 秒', title: '為什麼來', desc: '對貴公司產品／團隊的認同與職缺連結' }
+            ].map((part, i) => `
+              <div class="bg-warm-soft/80 border border-warm-border rounded-2xl p-5 flex flex-col justify-between relative">
+                <div>
+                  <span class="inline-block px-3 py-1 rounded-full ${i % 2 === 0 ? 'bg-amber-600' : 'bg-teal-700'} text-white font-black text-xs mb-3">${part.sec}</span>
+                  <h3 class="text-xl font-extrabold text-warm-ink mb-2">${part.title}</h3>
+                  <p class="text-xs sm:text-sm text-warm-muted leading-relaxed">${part.desc}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm font-bold text-amber-950 flex items-center justify-center gap-2">
+            <i data-lucide="mic" class="w-4 h-4 text-amber-600"></i>
+            <span>結尾小細節：不要說「以上是我的自我介紹」。自然微笑說「謝謝，以上是我目前的經歷與專案簡介」，直接把話題交給面試官即可。</span>
+          </div>
+        `
+      },
+
+      // Slide 19: TECH INTERVIEW
+      {
+        tag: "TECH INTERVIEW",
+        title: "工程師面試，常見的不是只有「考題」",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">TECH INTERVIEW · 面試全貌</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">工程師面試的六大常見考察面向</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-5">
+            ${[
+              { title: '1. 履歷深挖', desc: '專案架構、技術選擇原因、關鍵 Bug 排查與團隊分工細節', icon: 'file-search' },
+              { title: '2. 基礎知識', desc: '程式語言特性、資料結構、資料庫索引／交易、網路與 OS 概念', icon: 'book' },
+              { title: '3. 系統情境題', desc: '線上服務除錯思路、API 設計、部署流程、資安防護與效能優化', icon: 'layers' },
+              { title: '4. 現場實作', desc: '手寫程式邏輯（Coding）、SQL 查詢語法、白板架構圖或 Live Debug', icon: 'terminal' },
+              { title: '5. 行為面試題', desc: '跨部門合作、意見衝突處理、高壓期限應對與新技術自學方式', icon: 'users' },
+              { title: '6. 雙向反問題', desc: '你對團隊文化、開發流程、技術棧與未來三個月任務的提問品質', icon: 'message-circle-question' }
+            ].map(item => `
+              <div class="bg-warm-soft/70 border border-warm-border rounded-2xl p-4">
+                <div class="flex items-center gap-2.5 mb-2">
+                  <div class="p-2 rounded-xl bg-white text-teal-700 border border-warm-border">
+                    <i data-lucide="${item.icon}" class="w-4 h-4"></i>
+                  </div>
+                  <h3 class="font-bold text-base text-warm-ink">${item.title}</h3>
+                </div>
+                <p class="text-xs sm:text-sm text-warm-muted leading-relaxed">${item.desc}</p>
+              </div>
+            `).join('')}
+          </div>
+        `
+      },
+
+      // Slide 20: BEHAVIOR
+      {
+        tag: "BEHAVIOR",
+        title: "行為題別背標準答案，準備 5 個真實故事",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">BEHAVIOR · 軟實力故事庫</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">行為題別背標準答案，用 STAR 準備 5 個真實故事</h2>
+          </div>
+          <div class="space-y-2.5 my-4">
+            ${[
+              { num: '1', topic: '最難解的技術問題', tip: '展示你的除錯邏輯、查資料能力與堅持度（60–90 秒版本）' },
+              { num: '2', topic: '一次失敗或判斷錯誤', tip: '展示你如何承認錯誤、即時止損並從中建立預防機制' },
+              { num: '3', topic: '團隊合作與意見衝突', tip: '展示你如何對事不對人、用技術事實或原型說服隊友' },
+              { num: '4', topic: '快速學會一項新技術', tip: '展示你的自學方法論：看官方文件 ➔ 做小 Demo ➔ 整合進專案' },
+              { num: '5', topic: '主動多做一步的經驗', tip: '展示你的責任感，例如主動補齊文件、自動化測試或優化體驗' }
+            ].map(s => `
+              <div class="bg-warm-soft/70 border border-warm-border rounded-2xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                  <span class="w-7 h-7 rounded-lg bg-amber-600 text-white font-bold text-xs flex items-center justify-center shrink-0">${s.num}</span>
+                  <span class="font-bold text-sm sm:text-base text-warm-ink">${s.topic}</span>
+                </div>
+                <span class="text-xs text-teal-800 font-medium bg-white px-3 py-1 rounded-lg border border-warm-border">${s.tip}</span>
+              </div>
+            `).join('')}
+          </div>
+          <p class="text-xs sm:text-sm text-warm-muted text-center font-medium">💡 遇到沒遇過的情境，誠實說「我目前還沒遇過這情況，但如果發生，我會先……」，千萬不要硬編故事。</p>
+        `
+      },
+
+      // Slide 21: INTERVIEW DAY
+      {
+        tag: "INTERVIEW DAY",
+        title: "面試當天：把可控的事情先處理好",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">INTERVIEW DAY · 臨場準備</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">面試當天：把可控的事情先處理好，降低緊張感</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-5">
+            <div class="bg-warm-soft/70 border border-warm-border rounded-2xl p-5">
+              <div class="flex items-center gap-2 text-amber-700 font-bold text-base mb-3">
+                <i data-lucide="building-2" class="w-5 h-5"></i> 實體面試
+              </div>
+              <ul class="space-y-2 text-sm text-warm-ink">
+                <li>• 提早 10–15 分鐘抵達（勿過早）</li>
+                <li>• 服裝乾淨、整潔（Smart Casual）</li>
+                <li>• 隨身攜帶紙本履歷 2–3 份</li>
+                <li>• 進大樓前手機轉靜音震動</li>
+              </ul>
+            </div>
+
+            <div class="bg-warm-soft/70 border border-warm-border rounded-2xl p-5">
+              <div class="flex items-center gap-2 text-teal-700 font-bold text-base mb-3">
+                <i data-lucide="video" class="w-5 h-5"></i> 線上面試
+              </div>
+              <ul class="space-y-2 text-sm text-warm-ink">
+                <li>• 提前 15 分鐘測試鏡頭／麥克風</li>
+                <li>• 會議顯示名稱改為中文＋英文全名</li>
+                <li>• 整理電腦桌面與背後環境光線</li>
+                <li>• 準備手機熱點作為備用網路</li>
+              </ul>
+            </div>
+
+            <div class="bg-amber-50/90 border border-amber-200 rounded-2xl p-5">
+              <div class="flex items-center gap-2 text-amber-900 font-bold text-base mb-3">
+                <i data-lucide="shield-check" class="w-5 h-5 text-amber-600"></i> 共同實戰心法
+              </div>
+              <ul class="space-y-2 text-sm text-amber-950 font-medium">
+                <li>• 把該公司 JD 與履歷放在手邊參考</li>
+                <li>• 準備紙筆隨時記錄問題重點</li>
+                <li>• 聽完整個題目再思考回答</li>
+                <li>• 不知道就誠實說推理思路，不亂猜</li>
+              </ul>
+            </div>
+          </div>
+        `
+      },
+
+      // Slide 22: QUESTIONS
+      {
+        tag: "QUESTIONS",
+        title: "最後的「你有沒有問題？」其實也是面試的一部分",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">QUESTIONS · 反問環節</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">最後的「你有沒有問題？」其實也是面試的一部分</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 my-5">
+            <div class="bg-teal-50/70 border border-teal-300 rounded-2xl p-5">
+              <h3 class="font-bold text-teal-900 text-base mb-3 flex items-center gap-2">
+                <i data-lucide="thumbs-up" class="w-5 h-5 text-teal-600"></i> 推薦這樣問（展現積極與專業）
+              </h3>
+              <ul class="space-y-2.5 text-sm text-teal-950 font-medium">
+                <li class="bg-white p-3 rounded-xl border border-teal-100">✓ 「這個職位前三個月最重要的期待與目標是什麼？」</li>
+                <li class="bg-white p-3 rounded-xl border border-teal-100">✓ 「團隊目前的技術棧、版控與 Code Review 流程為何？」</li>
+                <li class="bg-white p-3 rounded-xl border border-teal-100">✓ 「新人加入後，通常會先從哪一類任務開始上手？」</li>
+                <li class="bg-white p-3 rounded-xl border border-teal-100">✓ 「團隊目前在技術或系統上面臨最大的挑戰是什麼？」</li>
+              </ul>
+            </div>
+
+            <div class="bg-rose-50/70 border border-rose-200 rounded-2xl p-5">
+              <h3 class="font-bold text-rose-800 text-base mb-3 flex items-center gap-2">
+                <i data-lucide="thumbs-down" class="w-5 h-5 text-rose-600"></i> 先不要這樣問（容易扣分）
+              </h3>
+              <ul class="space-y-2.5 text-sm text-rose-950">
+                <li class="bg-white/80 p-3 rounded-xl border border-rose-100">× 官網首頁就查得到的基本公司業務資訊</li>
+                <li class="bg-white/80 p-3 rounded-xl border border-rose-100">× 技術主管面試一開場只問福利、休假、幾點下班</li>
+                <li class="bg-white/80 p-3 rounded-xl border border-rose-100">× 直接逼問「請問你覺得我今天會錄取嗎？」</li>
+                <li class="bg-white/80 p-3 rounded-xl border border-rose-100">× 直接回答「沒有，我都清楚了」（顯得對職缺沒興趣）</li>
+              </ul>
+            </div>
+          </div>
+        `
+      },
+
+      // Slide 23: FOLLOW-UP
+      {
+        tag: "FOLLOW-UP",
+        title: "面試後 24 小時內，你還可以做一件事",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">FOLLOW-UP · 面試後感謝信</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">面試後 24 小時內，寄出一封有溫度的感謝信</h2>
+          </div>
+          <div class="bg-white border-2 border-warm-border rounded-2xl p-5 sm:p-6 my-4 shadow-sm font-sans">
+            <div class="pb-3 mb-3 border-b border-warm-border text-sm font-bold text-teal-800">
+              主旨｜感謝今日面談－應徵 Java Backend Engineer－王小明
+            </div>
+            <div class="space-y-3 text-sm text-warm-ink leading-relaxed">
+              <p>您好，謝謝您今天撥空與我面談。</p>
+              <p>透過今天的深入交流，我更了解團隊目前在 <span class="bg-amber-100 px-1.5 py-0.5 rounded font-bold text-amber-900">＿＿＿（填入面試聊到的技術痛點）</span> 上的挑戰，也很期待有機會運用我在 <span class="bg-amber-100 px-1.5 py-0.5 rounded font-bold text-amber-900">＿＿＿</span> 專案中的 <span class="bg-amber-100 px-1.5 py-0.5 rounded font-bold text-amber-900">＿＿＿</span> 經驗參與貢獻。</p>
+              <p>若後續需要補充任何作品連結或技術資料，我很樂意隨時提供。再次感謝您的時間與指導！</p>
+            </div>
+          </div>
+          <div class="bg-warm-soft border border-warm-border rounded-2xl p-3.5 text-xs sm:text-sm text-warm-muted">
+            📌 <strong>撰寫重點：</strong>簡短、具體、有禮貌。不要催促錄取結果，也不要寫成第二封長篇自傳。若超過企業承諾的回覆時間，再禮貌追蹤一次即可。
+          </div>
+        `
+      },
+
+      // Slide 24: FAQ
+      {
+        tag: "FAQ",
+        title: "同學最常問的 6 題",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-extrabold tracking-widest uppercase mb-3">FAQ · 常見迷思破解</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">求職同學最常問的 6 個關鍵問題</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-4">
+            ${[
+              { q: 'Q1 履歷一定要一頁嗎？', a: '新鮮人／轉職初階建議控制在 1–2 頁。重點是「相關性與可讀性」，不是把字縮到很小硬塞成一頁。' },
+              { q: 'Q2 沒有相關工作經驗怎麼辦？', a: '把技術培訓、完整專案、GitHub 作品集與可轉移能力往前放。你的專案就是目前最重要的工作樣本。' },
+              { q: 'Q3 專案是團體做的，可以寫嗎？', a: '完全可以，但務必清楚標註「你個人負責哪一塊」，不要把整組的成果模糊算成自己的。' },
+              { q: 'Q4 不太會的技術要寫上去嗎？', a: '不要。面試官會直接從履歷出題。剛學過可標註「基礎／接觸」，千萬不要包裝成熟練。' },
+              { q: 'Q5 面試技術題答不出來怎麼辦？', a: '先釐清題意，再說出你目前知道的部分與推理方向。技術面試官同時在觀察你如何處理未知問題。' },
+              { q: 'Q6 收到 Offer 但還在等別間決定？', a: '禮貌與 HR 確認回覆期限，並在期限內給出明確答覆。切忌無故消失，也不要同時承諾多家公司到職。' }
+            ].map(item => `
+              <div class="bg-warm-soft/70 border border-warm-border rounded-2xl p-3.5">
+                <h3 class="font-bold text-sm text-amber-800 mb-1">${item.q}</h3>
+                <p class="text-xs text-warm-ink leading-relaxed">${item.a}</p>
+              </div>
+            `).join('')}
+          </div>
+        `
+      },
+
+      // Slide 25: ACTION
+      {
+        tag: "ACTION",
+        title: "今天下課後，請完成這 4 件事",
+        render: () => `
+          <div>
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-extrabold tracking-widest uppercase mb-3">ACTION · 課後行動清單</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-warm-ink">今天下課後，請立刻完成這 4 件事</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-6">
+            ${[
+              { num: '01', title: '選 1 個真的想投的 JD', desc: '打開求職網站，挑出你最心儀的一份工程師職缺並拆解關鍵字' },
+              { num: '02', title: '依 JD 重排技能與專案', desc: '把最符合該職缺的技能樹與代表專案調整到第一頁視覺焦點' },
+              { num: '03', title: '改寫 1 個核心專案', desc: '套用「動作 ＋ 技術 ＋ 對象 ＋ 結果」公式重寫專案描述' },
+              { num: '04', title: '準備自介與 5 個故事', desc: '計時練習 60 秒自我介紹，並寫下 5 個 STAR 行為面試草稿' }
+            ].map(act => `
+              <div class="bg-white border-2 border-amber-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+                <div>
+                  <span class="text-3xl font-black text-amber-600 block mb-3">${act.num}</span>
+                  <h3 class="font-extrabold text-base text-warm-ink mb-2">${act.title}</h3>
+                  <p class="text-xs text-warm-muted leading-relaxed">${act.desc}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="bg-teal-900 text-white rounded-2xl p-5 text-center">
+            <p class="text-sm sm:text-base font-medium">
+              你不需要看起來像「什麼都會的資深架構師」。<br/>
+              你需要讓企業清楚看見：<strong class="text-amber-300">「你已經準備好從 Junior 的位置開始解決問題。」</strong>
+            </p>
+          </div>
+        `
+      },
+
+      // Slide 26: CLOSING & Q&A
+      {
+        tag: "Q & A",
+        title: "履歷寫完，不是結束。是你開始跟市場對話。",
+        render: () => `
+          <div class="flex-1 flex flex-col justify-center items-center text-center">
+            <div class="w-16 h-16 rounded-3xl bg-amber-100 text-amber-600 flex items-center justify-center mb-6 shadow-sm">
+              <i data-lucide="rocket" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-3xl sm:text-5xl font-black text-warm-ink leading-tight mb-4">
+              履歷寫完，不是結束。<br/>
+              是你開始<span class="text-teal-700">跟市場對話</span>。
+            </h2>
+            <p class="text-base sm:text-lg text-warm-muted max-w-xl mb-8">
+              每一次投遞與面試都是寶貴的系統回饋，持續迭代你的履歷版本！
+            </p>
+
+            <!-- 循環流程圖 -->
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10">
+              ${['投遞履歷', '獲得面試', '記錄問題', '優化修履歷', '再次投遞'].map((step, idx, arr) => `
+                <span class="px-4 py-2 rounded-xl bg-warm-soft border border-warm-border font-bold text-sm text-warm-ink shadow-sm">${step}</span>
+                ${idx < arr.length - 1 ? '<i data-lucide="arrow-right" class="w-4 h-4 text-amber-600"></i>' : ''}
+              `).join('')}
+            </div>
+
+            <div class="px-8 py-3 rounded-2xl bg-amber-600 text-white font-black text-xl tracking-widest shadow-warm">
+              Q & A 交流時間
+            </div>
+          </div>
+        `
+      }
+    ];
+
+    let currentSlide = 0;
+
+    // 讀取網址 Hash（例如 slides.html#9 -> 第 9 頁，index 為 8）
+    function getInitialSlideFromHash() {
+      const hash = window.location.hash.replace('#', '');
+      const pageNum = parseInt(hash, 10);
+      if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= slides.length) {
+        return pageNum - 1;
+      }
+      return 0;
+    }
+
+    // 渲染當前投影片
+    function renderSlide(index, updateHash = true) {
+      if (index < 0) index = 0;
+      if (index >= slides.length) index = slides.length - 1;
+      currentSlide = index;
+
+      const slideEl = document.getElementById('slide-content');
+      const slideData = slides[currentSlide];
+
+      // 過場淡入效果
+      slideEl.classList.remove('slide-active');
+      slideEl.classList.add('slide-enter');
+
+      setTimeout(() => {
+        slideEl.innerHTML = slideData.render();
+        lucide.createIcons();
+        slideEl.classList.remove('slide-enter');
+        slideEl.classList.add('slide-active');
+      }, 120);
+
+      // 更新進度條與頁碼
+      const progress = ((currentSlide + 1) / slides.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      document.getElementById('page-indicator').textContent = `${currentSlide + 1} / ${slides.length}`;
+
+      // 更新按鈕禁用狀態
+      document.getElementById('btn-prev').disabled = currentSlide === 0;
+      document.getElementById('btn-next').disabled = currentSlide === slides.length - 1;
+
+      // 更新網址錨點
+      if (updateHash) {
+        history.replaceState(null, '', `#${currentSlide + 1}`);
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) {
+        renderSlide(currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        renderSlide(currentSlide - 1);
+      }
+    }
+
+    function goToSlide(index) {
+      renderSlide(index);
+      toggleOverview(false);
+    }
+
+    // 目錄總覽開關
+    function toggleOverview(forceState) {
+      const modal = document.getElementById('overview-modal');
+      const isHidden = modal.classList.contains('hidden');
+      const shouldShow = typeof forceState === 'boolean' ? forceState : isHidden;
+
+      if (shouldShow) {
+        renderOverviewGrid();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function renderOverviewGrid() {
+      const grid = document.getElementById('overview-grid');
+      grid.innerHTML = slides.map((s, idx) => `
+        <button onclick="goToSlide(${idx})" class="text-left p-4 rounded-2xl border transition cursor-pointer flex flex-col justify-between ${idx === currentSlide ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-200' : 'bg-white border-warm-border hover:border-amber-300'}">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-warm-soft text-teal-800">${s.tag}</span>
+            <span class="text-xs font-bold text-warm-muted">#${idx + 1}</span>
+          </div>
+          <p class="text-sm font-bold text-warm-ink line-clamp-2">${s.title}</p>
+        </button>
+      `).join('');
+    }
+
+    // 全螢幕切換
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // 鍵盤快捷鍵監聽
+    document.addEventListener('keydown', (e) => {
+      const modalOpen = !document.getElementById('overview-modal').classList.contains('hidden');
+      if (e.key === 'Escape' && modalOpen) {
+        toggleOverview(false);
+        return;
+      }
+      if (e.key.toLowerCase() === 'g') {
+        toggleOverview();
+        return;
+      }
+      if (modalOpen) return;
+
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        renderSlide(0);
+      } else if (e.key === 'End') {
+        renderSlide(slides.length - 1);
+      }
+    });
+
+    // 手機觸控左右滑動換頁支援
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const stage = document.getElementById('slide-stage');
+
+    stage.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    stage.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) nextSlide();
+        else prevSlide();
+      }
+    }, { passive: true });
+
+    // 監聽瀏覽器上一頁 / 下一頁 Hash 變化
+    window.addEventListener('hashchange', () => {
+      renderSlide(getInitialSlideFromHash(), false);
+    });
+
+    // 初始化
+    window.onload = function () {
+      lucide.createIcons();
+      renderSlide(getInitialSlideFromHash(), true);
+    };
+  </script>
+</body>
+</html>
